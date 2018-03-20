@@ -1,0 +1,92 @@
+Story : Account Holder Make Payments
+	As a Account Holder
+	I want to Make Payments in The System(assumptions: OnLine Banking, Device App)
+	So that I can Make Payments any where
+
+1) Look for the account from which the payment is being made.
+
+Scenario 1: Account number exists in Account Data Store 
+  Given I have account number
+  And account number is "AC-1234"
+  When I look the account number "AC-1234"
+  Then should return the valid account number
+  
+  TDD AccountExist_Returns_Expected_AccountNumber
+  //Actions
+  -Looking for the Account Number
+    
+Scenario 2: Account number not exists in Account Data Store 
+  Given I have account number
+  And account number is "AC-5432"
+  When I look the account number "AC-5432"
+  Then account number should return null
+  
+  TDD AccountNotExist_Returns_Expected_AccountNumberNull
+  //Actions
+  -Looking for the Account Number
+  
+  
+2) Make sure the account is in a valid state to make the payment.
+
+Scenario 3: Ensure the account number have valid state
+  Given I have account number
+  And exist Payment Schemes
+  And exist Account Status
+  When I look the account number "AC-1234"
+  And account number status valid (assumptions: Not Disable)
+  And account number has valid payment scheme
+  Then should return payment scheme
+  
+  TDD AccountNumber_HasValidStatus_Expected_PaymentScheme
+  //Actions
+  -Checking Account Number Status
+  
+Scenario 4: Do Not Make a Payment Account Status not Allowed
+  Given I have account number
+  And exist Payment Schemes
+  And exist Account Status
+  When I look the account number "AC-1234"
+  And account number status invalid (assumptions: Disable)
+  And account number has invalid payment scheme
+  Then should return account status disable
+  
+  TDD AccountNumber_HasNotValidStatus_Expected_AccoutStatusDisabled
+  //Actions
+  -Check Account Status
+  
+
+3) Deduct the payment amount from the account balance and update the account in the database.
+
+Scenario 5: Make a payment with sufficient funds
+  Given I have account number
+  And account balance is £200.00
+  And account holder pays £50.00
+  Then deduct from account balance
+  And return success
+
+  TDD SufientFunds_MakePayment_ExpectedSuccess
+  //Actions
+  -Check Funds Available
+  -Deduct the amount
+  -Update the account
+  -Store transaction into BackupAccountDataStore
+  
+  
+Scenario 6: Check Balance after deduction
+  Given I have account number
+  And account number is "AC-1234"
+  When I look the account number "AC-1234"
+  Then account balance should be £150.00  
+
+  TDD CheckBalance_AfterDeduction_Expected_150
+  //Actions
+  -Check Funds Available
+  
+Scenario 7: Payment does not occur with insufficient funds
+  Given the account balance is £10
+  When the account holder pays £50
+  Then returns the account balance has insufficient funds
+  
+  TDD MakePayment_InsufientFunds_ReturnsExpectedString
+  //Actions
+  -Check Funds Available
