@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Osvaldo Martini - Test BSC</title>
+
+    <link href="/Content/themes/base/jquery-ui.css" rel="stylesheet" />
+    <link href="/Content/jquery.jqGrid/ui.jqgrid.css" rel="stylesheet" />
+
+    <script src="/Scripts/jquery-1.9.1.min.js"></script>
+    <script src="/Scripts/jquery-ui-1.10.0.js"></script>
+    <script src="/Scripts/i18n/grid.locale-en.js"></script>
+    <script src="/Scripts/jquery.jqGrid.min.js"></script>
+    
+    
+
+    <script>
+        //TOOL USED : JSON String Escape / Unescape
+        //https://www.freeformatter.com/json-escape.html#ad-output
+
+        var BCS = '{\"data\":[{\"id\":1,\"name\":\"Bob\",\"account\":\"ACC123\",\"value\":500,\"created\":\"2017-01- 11\" },{\"id\":2,\"name\":\"Alice\",\"account\":\"BBB321\",\"value\":300,\"created\":\"2017-03- 05\" },{\"id\":3,\"name\":\"Jim\",\"account\":\"BAA456\",\"value\":20.5,\"created\":\"2017-02- 12\" },{\"id\":4,\"name\":\"Liz\",\"account\":\"BBB654\",\"value\":1000,\"created\":\"2017-04- 30\"}]}';
+
+        obj = JSON.parse(BCS);
+        arrayData = obj.data;
+
+        var filtered = [];
+        for(var i in arrayData) {
+            if (arrayData.hasOwnProperty(i)) {
+
+                var item = arrayData[i];
+                if (item.account.charAt(0) === 'B') {
+
+                    filtered.push({
+                        "id": item.id,
+                        "name": item.name,
+                        "account": item.account,
+                        "value": item.value,
+                        "created":item.created
+                    });
+                }
+            }
+        }
+
+        
+        $(function () {
+            
+            $("#GridBSC").jqGrid
+            ({
+                datatype: 'local',
+                data: filtered,
+                //table header name
+                colNames: ['id', 'Name', 'Account', 'Value', 'Created'],
+                //colModel takes the data from controller and binds to grid
+                colModel: [
+                {
+                    name: 'id',
+                    editable: true,
+                    key: true,
+                    hidden: true,
+                    search: false
+                },
+                {
+                    name: "name", editable: true, editrules: { required: true }, search: true
+                },
+                {
+                    name: 'account', editable: true, editrules: { required: true }, search: true
+                },
+                {
+                    name: "value", editable: true, editrules: { required: true }, search: false,
+                    formatter: formatterCurrency
+                },
+                {
+                    name: "created", editable: true, editrules: { required: true }, search: false,
+                    formatter: 'date', formatoptions: { srcformat: "F, d Y", newformat: "d F Y" }
+
+                }
+                    
+                ],
+                height: '100%',
+                viewrecords: true,
+                caption: 'BSC Case Test 2',
+                emptyrecords: 'No records',
+                rowNum: 10,
+
+                pager: jQuery('#pager'),
+                rowList: [10, 20, 30, 40],
+
+                jsonReader:
+                {
+                    root: "rows",
+                    page: "page",
+                    total: "total",
+                    records: "records",
+                    repeatitems: false,
+                    Id: "0"
+                },
+                autowidth: true
+            }).navGrid('#pager',
+            {
+                edit: true,
+                add: true,
+                del: true,
+                search: true,
+                refresh: true,
+                closeAfterSearch: true
+            }
+
+            );
+
+            $('#GridBSC').jqGrid('sortGrid', 'account', true, 'asc');
+
+ 
+        });
+
+       
+        //formatter value Red Blue and Decimal Separator
+        function formatterCurrency(cellvalue) {
+            if (cellvalue < 100) {
+                return '<span class="currency" style="background-color: #ff3333; display: block; width: 100%; height: 100%; ">' +
+                    CurrencyFormatted(cellvalue) +
+                    '</span>';
+            } else if (cellvalue > 500)
+            {
+                return '<span class="currency"style="background-color: #66ff66; display: block; width: 100%; height: 100%; ">' +
+                    CurrencyFormatted(cellvalue) +
+                    '</span>';
+            }else
+                return CurrencyFormatted(cellvalue);
+
+        }
+
+
+        function CurrencyFormatted(amount) {
+            var i = parseFloat(amount);
+            if (isNaN(i)) { i = 0.00; }
+            var minus = '';
+            if (i < 0) { minus = '-'; }
+            i = Math.abs(i);
+            i = parseInt((i + .005) * 100);
+            i = i / 100;
+            var s;
+            s = new String(i);
+            if (s.indexOf('.') < 0) { s += '.00'; }
+            if (s.indexOf('.') === (s.length - 2)) { s += '0'; }
+            s = minus + s;
+            return s;
+        }
+
+
+
+    </script>
+
+</head>
+<body>
+    <p>
+        Please see table below:
+    </p>
+    <p id="demo"></p>
+    <div>
+        <table id="GridBSC"></table>
+        <div id="pager"></div>
+    </div>
+</body>
+</html>
